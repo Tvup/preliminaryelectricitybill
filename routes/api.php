@@ -17,6 +17,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('sms', 'SmsController@get');
+Route::get('webhook', 'WebhookController@get');
 Route::get('el', 'ElController@get');
 Route::get('el/{refreshToken}', 'ElController@get');
+Route::get('el/{start_date}/{end_date}/{price_area}/{refreshToken}', 'ElController@getFromDate');
 Route::get('el/{refreshToken}/delete', 'ElController@delete');
+Route::post('webhook', 'WebhookController@get');

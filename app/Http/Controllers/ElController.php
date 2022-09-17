@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\GetMeteringData;
 use App\Services\GetSpotPrices;
+use Carbon\Carbon;
 use ErrorException;
 use Tvup\ElOverblikApi\ElOverblikApiException;
 
@@ -31,6 +32,11 @@ class ElController extends Controller
         return $this->getPreliminaryInvoice($refreshToken);
     }
 
+    public function getFromDate($start_date, $end_date, $price_area, $refreshToken = null)
+    {
+        return $this->getPreliminaryInvoice($refreshToken, $start_date, $end_date, $price_area);
+    }
+
     public function delete($refreshToken)
     {
         if($refreshToken == 'MIT_LÆKRE_TOKEN_HER') {
@@ -51,17 +57,22 @@ class ElController extends Controller
     /**
      * @return mixed
      */
-    private function getPreliminaryInvoice($refreshToken = null)
+    private function getPreliminaryInvoice($refreshToken = null, string $start_date = '2022-09-01', string $end_date = '2022-10-01', $price_area = 'DK2')
     {
         if($refreshToken == 'MIT_LÆKRE_TOKEN_HER') {
             return response('Hov :) Du fik vist ikke læst, hvad jeg skrev', 200)
                 ->header('Content-Type', 'text/plain');
         }
 
+        if(Carbon::parse($end_date)->greaterThan(Carbon::now()->startOfDay())) {
+            $end_date = Carbon::now()->startOfDay()->toDateString();
+        }
+
         try {
-            $meterData = $this->meteringDataService->getData($refreshToken);
+            $meterData = $this->meteringDataService->getData($refreshToken, $start_date, $end_date);
             $new = new GetSpotPrices();
-            $prices = $new->getData();
+            $prices = $new->getData($start_date, $end_date, $price_area);
+
 
             list($subscriptions, $tariffs) = $this->meteringDataService->getCharges($refreshToken);
         } catch (ElOverblikApiException $e) {

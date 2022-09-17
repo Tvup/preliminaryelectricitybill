@@ -18,7 +18,7 @@ class GetMeteringData
     private $meteringPoint;
 
 
-    public function getData($refreshToken = null)
+    public function getData($refreshToken = null, $start_date, $end_date)
     {
         $energiOverblikApi = $this->getEloverblikApi($refreshToken);
 
@@ -35,7 +35,13 @@ class GetMeteringData
         $response = null;
 
         try {
-            $response = $energiOverblikApi->getHourTimeSeriesFromMeterData(Carbon::now()->startOfMonth()->toDateString(), Carbon::now()->toDateString(), $meteringPointId);
+            if(!$start_date) {
+                $start_date = Carbon::now()->startOfMonth()->toDateString();
+            }
+            if(!$end_date) {
+                $end_date = Carbon::now()->toDateString();
+            }
+            $response = $energiOverblikApi->getHourTimeSeriesFromMeterData($start_date, $end_date, $meteringPointId);
         } catch (ElOverblikApiException $e) {
             var_dump($e->getErrors());
         }

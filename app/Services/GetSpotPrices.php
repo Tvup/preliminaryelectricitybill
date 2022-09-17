@@ -6,11 +6,11 @@ use GuzzleHttp\Client;
 
 class GetSpotPrices
 {
-    public function getData()
+    public function getData(string $start_date, string $end_date, string $price_area)
     {
         $client = new Client();
         $verb = 'GET';
-        $parameters = ['limit' => 744, 'start' => '2022-09-01', 'filter' => '{"PriceArea":"DK2"}', 'columns' => 'HourDK,SpotPriceDKK'];
+        $parameters = ['start' => $start_date, 'end' => $end_date, 'filter' => '{"PriceArea":"' . $price_area . '"}', 'columns' => 'HourDK,SpotPriceDKK'];
         $parameters = '?' . http_build_query($parameters);
         $url = 'https://api.energidataservice.dk/dataset/Elspotprices' . $parameters;
 
